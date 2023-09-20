@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'Views/MyVideoView.dart';
 import 'Models/Video.dart';
+import './Views/MyListView.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,10 +16,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Video',
+      title: "Evonne's Video",
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 43, 255, 244)),
+        fontFamily: 'JosefinSans',
+        primaryColor: Colors.teal.shade200,
+        highlightColor: Colors.black,
+        scaffoldBackgroundColor: Colors.grey[50],
+        appBarTheme: AppBarTheme(backgroundColor: Colors.teal[200]),
         useMaterial3: true,
       ),
       home: MyHomePage(),
@@ -27,109 +31,73 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   Icon customIcon = const Icon(Icons.search);
-  Widget customSearchBar = const Text('Flutter Video');
-  final Future<List<Video>> myVideos = fetchMyChannel();
+  Widget customSearchBar = const Text("Evonne's Video");
+  Future<List<Video>> myVideos = fetchMyChannel();
 
   @override
   void initState() {
     super.initState();
   }
 
+  Future<List<Video>> queryVideo(String value) async {
+    var data = await myVideos;
+    return data
+        .where(
+            (item) => item.vTitle.toLowerCase().contains(value.toLowerCase()))
+        .toList();
+  }
+
+  void handleTextChange(String value) async {
+    setState(() {
+      myVideos = value != "" ? queryVideo(value) : fetchMyChannel();
+    });
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: customSearchBar,
-            centerTitle: true,
-            actions: [
-              IconButton(
-                  onPressed: () {
-                    setState(() {
-                      if (customIcon.icon == Icons.search) {
-                        customIcon = const Icon(Icons.cancel);
-                        customSearchBar = const ListTile(
-                          leading: Icon(
-                            Icons.search,
+        appBar: AppBar(title: customSearchBar, centerTitle: true, actions: [
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  if (customIcon.icon == Icons.search) {
+                    customIcon = const Icon(Icons.cancel);
+                    customSearchBar = ListTile(
+                      leading: Icon(
+                        Icons.search,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                      title: TextField(
+                        onChanged: handleTextChange,
+                        decoration: InputDecoration(
+                          hintText: 'type in keyword...',
+                          hintStyle: TextStyle(
                             color: Colors.white,
-                            size: 28,
+                            fontSize: 18,
+                            fontStyle: FontStyle.italic,
                           ),
-                          title: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'type in keyword...',
-                              hintStyle: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontStyle: FontStyle.italic,
-                              ),
-                              border: InputBorder.none,
-                            ),
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        );
-                      } else {
-                        customIcon = const Icon(Icons.search);
-                        customSearchBar = const Text('Flutter Video');
-                      }
-                    });
-                  },
-                  icon: customIcon)
-            ]),
-        body: MyListView(items: myVideos));
-  }
-}
-
-class MyListView extends StatelessWidget {
-  MyListView({required this.items});
-  final Future<List<Video>> items;
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Video>>(
-        future: items,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
-          } else {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: Image.network(snapshot.data![index].imgUrl),
-                  title: Text(snapshot.data![index].vTitle),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                MyVideoView(video: snapshot.data![index])));
-                  },
-                );
+                          border: InputBorder.none,
+                        ),
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    );
+                  } else {
+                    customIcon = const Icon(Icons.search);
+                    customSearchBar = const Text('Flutter Video');
+                  }
+                });
               },
-            );
-          }
-        });
+              icon: customIcon)
+        ]),
+        body: MyListView(items: myVideos));
   }
 }
 
@@ -146,6 +114,7 @@ Future<List<Video>> fetchMyChannel() async {
       Video v = Video();
       v.vId = i['id']['videoId'];
       v.vTitle = i['snippet']['title'];
+      v.vDesc = i['snippet']['description'];
       v.chId = i['snippet']['channelId'];
       v.chTitle = i['snippet']['channelTitle'];
       v.imgUrl = i['snippet']['thumbnails']['default']['url'];

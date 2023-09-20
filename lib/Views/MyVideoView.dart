@@ -44,13 +44,16 @@ class _MyVideoView extends State<MyVideoView> {
           Container(
               padding: EdgeInsets.all(16.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(video.vTitle,
                       style: TextStyle(fontSize: 16),
                       textAlign: TextAlign.left),
-                  Text(video.chTitle +
-                      ' ' +
-                      DateFormat('yyyy-MM-dd HH:mm:ss').format(video.pubTime))
+                  Text(video.chTitle),
+                  Padding(
+                    padding: EdgeInsets.only(top: 15),
+                    child: Text(video.vDesc),
+                  )
                 ],
               )),
         ],
