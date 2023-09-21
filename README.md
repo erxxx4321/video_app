@@ -4,9 +4,9 @@ A Flutter app which is connected to my youtube channel.
 
 ## Screenshots
 
-|             HomePage             |            Video Page            |
-| :------------------------------: | :------------------------------: |
-| ![](./assets/images/video01.png) | ![](./assets/images/video02.png) |
+|                      HomePage                       |                     Video Page                      |
+| :-------------------------------------------------: | :-------------------------------------------------: |
+| <img src="./assets/images/video01.png" width="300"> | <img src="./assets/images/video02.png" width="300"> |
 
 ## 💻 Requirements
 
@@ -28,3 +28,5 @@ For help getting started with Flutter, view our [online documentation](https://f
 ## LICENCE
 
 [WTFPL](http://www.wtfpl.net/about/)
+
+---
